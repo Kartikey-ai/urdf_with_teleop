@@ -1,4 +1,4 @@
-##### URDF Differential drive robot
+# URDF Differential drive robot
 
 There are three different types of urdf file present in here hermes, car_description, vehicle_Description. All of them are differential drive robots. Code is defined to work with a teleop. 
  
@@ -11,6 +11,7 @@ All the description files here are fully developed but there is a slight need to
 ## Test
 To test all the urdf file you just need to change the xacro file name in vehicle_description.launch and run teleop launch file simultaneously
 
+### Map
 You can also add maps in RVIZ. A different folder is made for such work.
 
 #### Commands
