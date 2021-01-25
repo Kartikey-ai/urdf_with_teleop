@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<launch>
+      <!--urdf xml robot description loaded on parameter server-->
+      <!--
+      <param name="robot_description" textfile="$(find my_vehicle)/vehicle_description.xacro" />
+      -->
+      
+      <!--You may use the vehicle_description.xacro file or car_description.xacro file-->
+      <arg name="model" default="$(find my_vehicle)/car_description.xacro"/>
+      <!--arg name="model" default="$(find my_vehicle)/vehicle_description.xacro"/-->
+      <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)" />      
+      
+      <!-- launch robot state publisher-->
+      
+      <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+         <!-- start an empty world simulation-->
+      <!--
+      <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(find my_vehicle)/skbot.world"/>
+      </include>
+      -->
+      <!-- run a python script to send a service call to gazebo ros to spawn a urdf robot-->
+      <!--node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model vehicle -param robot_description" /-->   
+
+      <!-- start an empty world simulation-->
+      
+      <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(find my_vehicle)/world/maze.world"/>
+      </include>
+      
+      <!-- run a python script to send a service call to gazebo ros to spawn a urdf robot-->
+      
+      <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model my_vehicle -param robot_description" />
+      
+      <!-- launch joint state publisher -->
+      
+      <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+            <param name="use_gui" value="false" />
+      </node>
+      <!--
+      <node name="teleop" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen">
+          <remap from="/cmd_vel" to="/cmd_vel" />
+      </node>   
+      -->
+      <!--
+      <node name="subscriber_vel" pkg="my_vehicle" type="subscriber_vel.py" output="screen">
+      </node> 
+      -->   
+      <!-- ros_control mybot launch file -->
+      
+      <!--
+      <include file="$(find bot)/launch/teleop.launch" />  
+      -->
+
+
+
+
+
+
+<!--______________________________________Hide it or Add it (Just for background)___________________________________-->
+
+      <!-- Launch RVIZ -->
+      <!--
+      <node pkg="rviz" type="rviz" name="rviz" args="-d $(find my_vehicle)/simulator.rviz" output="screen"/>
+      <!-->
+
+      <node pkg="rviz" type="rviz" name="rviz" args="-d $(find my_vehicle)/config.rviz" />
+      
+
+      <!-- Launch a map from the maps folder-->
+      <!--
+      <arg name="map" default="$(find my_vehicle)/maps/levine.yaml"/>
+      <node pkg="map_server" name="map_server" type="map_server" args="$(arg map)"/>      
+      -->
+</launch>

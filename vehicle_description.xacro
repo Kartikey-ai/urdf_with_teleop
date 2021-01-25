@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+<robot name="vehicle" xmlns:xacro="http://www.ros.org/wiki/xacro">
+   <!-- put robot description here -->
+  
+  
+  <xacro:property name="height" value="0.1" />
+  <xacro:property name="ground_offset" value="0.04" />
+  <xacro:property name="wheel_radius" value="0.09" />
+  <xacro:property name="wheel_length" value="0.05" />
+
+
+  <material name="green">
+    <color rgba="0.0 0.8 0.0 1.0"/>
+  </material>
+
+  <material name="grey">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
+  
+  <link name="base_link">
+    
+    <inertial>
+        <mass value="1.0"/>
+        <inertia ixx="0.015" ixy="0.0375" ixz="0.0375" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>    
+    
+    <visual>
+      <!--origin xyz="0.0 0.0 ${ground_offset+height/2}"/-->
+      <origin xyz="0.05 0.0 0.09"/>
+      <geometry>
+        <!--box size="${height} ${height} ${height}"/-->
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.1 0.1 0.1" />
+      </geometry>
+    </collision>
+
+  </link>
+  <!--
+  <joint name="base_link_left_hinge" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_hinge"/>  -->
+    <!--origin xyz="0.0 ${-wheel_length-(height/2)} ${wheel_radius}"/-->
+    <!--
+    <origin xyz="0.1 0.0725 0.09"/>
+  </joint>
+    
+  <link name="left_hinge"/>  
+  -->
+
+  <joint name="left_hinge_to_wheel" type="continuous">
+    <origin xyz="0.05 0.0725 0.09" rpy="${pi/2} 0.0 0.0"/>
+    <axis xyz = "0 0 1"/>
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+  </joint>
+
+  <link name="left_wheel">
+    
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="5.1e-5" ixy="5.1e-5" ixz="6.1e-5" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+    <visual>
+      <!--origin xyz="0.05 0.0725 0.09" rpy="${pi/2} 0.0 0.0"/-->
+      <geometry>
+        <!--cylinder length="${wheel_length}" radius="${wheel_radius}"/-->
+        <cylinder length="0.05" radius="0.09"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.05" radius="0.09" />
+      </geometry>
+    </collision>
+  </link>
+  <!--
+  <joint name="base_link_right_hinge" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_hinge"/>  -->
+    <!--origin xyz="0.0 ${wheel_length+(height/2)} ${wheel_radius}"/-->
+    <!--
+    <origin xyz="0.1 -0.0725 0.09"/>
+  </joint>
+
+  <link name="right_hinge"/>  
+  
+  -->
+
+  <joint name="right_hinge_to_wheel" type="continuous">
+    <origin xyz="0.05 -0.0725 0.09" rpy="${pi/2} 0.0 0.0"/>
+    <axis xyz = "0 0 1"/> <!-- y = wheel radius-->
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+  </joint>
+
+  <link name="right_wheel">
+    <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="5.1e-5" ixy="5.1e-5" ixz="5.1e-5" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+
+    <visual>
+      <!--origin xyz="0.05 -0.0725 0.09" rpy="${pi/2} 0.0 0.0"/-->
+      <geometry>
+        <!--cylinder length="${wheel_length}" radius="${wheel_radius}"/-->
+        <cylinder length="0.05" radius="0.09"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.05" radius="0.1" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="lidar_link">
+    <collision>
+      <origin xyz="0 0 0.09" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0125 0.0125 0.0125" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0.09" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0125 0.0125 0.0125" />
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0.09" rpy="0 0 0" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="lidar_joint" type="fixed">
+    <origin xyz="0 0 0.09" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="lidar_link" />
+  </joint>  
+  
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <leftJoint>left_hinge_to_wheel</leftJoint>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <publishWheelTF>false</publishWheelTF>
+      <publishOdomTF>true</publishOdomTF>
+      <wheelTorque>5</wheelTorque>
+      <wheelAcceleration>0</wheelAcceleration>
+      <updateRate>100</updateRate>
+      <odometrySource>world</odometrySource>  <!-- 'encoder' instead of 'world' is also possible -->
+      
+      <publishTf>1</publishTf>
+      <rosDebugLevel>na</rosDebugLevel>
+      <rightJoint>right_hinge_to_wheel</rightJoint>
+      <robotBaseFrame>base_link</robotBaseFrame>
+      <wheelSeparation>0.145</wheelSeparation>
+      <wheelDiameter>0.18</wheelDiameter>
+      <publishWheelJointState>true</publishWheelJointState>
+      <commandTopic>cmd_vel</commandTopic>
+      <robotBaseFrame>base_link</robotBaseFrame>
+    </plugin>
+  </gazebo>   
+
+  <gazebo reference="lidar_link">
+    <sensor name="head_lidar_sensor" type="ray">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>25</update_rate> <!-- choosen for SICK LMS111-->
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>1</resolution>
+            <min_angle>-2.35619</min_angle>
+            <max_angle>2.35619</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.5</min>
+          <max>20.0</max>
+          <resolution>0.001</resolution>
+        </range>
+      </ray>
+      <plugin filename="libgazebo_ros_laser.so" name="gazebo_ros_head_hokuyo_controller">
+        <topicName>/scan</topicName>
+        <frameName>lidar_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!--
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>false</alwaysOn>
+      <legacyMode>false</legacyMode>
+      <updateRate>20</updateRate>
+      <leftJoint>left_hinge_to_wheel</leftJoint>
+      <rightJoint>right_hinge_to_wheel</rightJoint>
+      <wheelSeparation>0.145</wheelSeparation>
+      <wheelDiameter>0.18</wheelDiameter>
+      <torque>20</torque>
+      <commandTopic>/cmd_vel</commandTopic>
+      <odometryTopic>/odom</odometryTopic>
+      <odometryFrame>/odom</odometryFrame>
+      <robotBaseFrame>base_link</robotBaseFrame>
+    </plugin>
+  </gazebo>
+  -->    
+</robot>
